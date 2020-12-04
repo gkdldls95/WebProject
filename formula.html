@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <title>formula</title>
+</head>
+
+<style>
+    body   { font-family: "함초롬돋음"; font-size: 12pt; background-color : DarkGrey; }
+    div    { border: 1px solid black; text-align: left; }
+    canvas { border: 1px solid red; margin: 20px; }
+    .cv    { width: 100%; margin-top: 1px; padding-left: 15px; background-color : white;}
+    .input { width: 100%; margin-top: 1px; padding-left: 15px; background-color : white;}
+    .info  { width: 100%; margin-top: 1px; padding-left: 15px; background-color : white;}
+    span   {color : red; font-size: large;    }
+    p.intro{
+     position:relative;
+     display: inline-block;
+     height: 20px; overflow: hidden;
+     animation: typingAni 5s steps(20, end) 1;
+    }
+    p.intro::after{
+     position:absolute; 
+     display:block;
+    }
+    @keyframes typingAni {
+     0%{width:0%}
+     100%{width: 400px};
+    }
+</style>
+
+<body>
+    <div class = "cv"    id = "cv"    >    </div>
+    <div class = "input" id = "input" >  <p class="intro"> 고급 웹 프로그래밍 4팀 - 이인, 이근, 황인성</p>   </div>
+    <div class = "info"  id = "info"  >    </div>
+
+</body>
+
+<script>
+	window.onload = function() {
+		console.log("-- formula.onload --");
+    }
+
+    window.addEventListener('message', function( str ) {
+        console.log("[RECEIVED] from Parent : ", str.data);
+        menu = str;
+        create_innerHTML(menu);
+        drawCanvas(menu);
+    });
+
+    var menu;
+
+    var cv_01;
+    var cv_02;
+
+    var x;
+    var r;
+    var h;
+
+    var div1  = document.getElementById("cv");
+    var div2  = document.getElementById("input");
+    var div3  = document.getElementById("info");
+
+    var innerHTML_null    = '<p></p>'
+    var innerHTML_cv_x1   = '<center><canvas id = "cv_center" width="600" height="300"></canvas></center>';
+    var innerHTML_cv_x2   = '<center><canvas id = "cv_left"  width="400" height="400"></canvas><canvas id = "cv_right" width="400" height="400"></canvas></center>';
+    var innerHTML_a_range = '<span>a</span>값 조절 : <input type="range" id="a_range" onchange="input_value(this)" value="100" min="30" max="300" step="10">';
+    var innerHTML_r_range = '<span>r</span>값 조절 : <input type="range" id="r_range" onchange="input_value(this)" value="50"  min="30" max="150" step="10">';
+    var innerHTML_h_range = '<span>h</span>값 조절 : <input type="range" id="h_range" onchange="input_value(this)" value="100" min="30" max="300" step="10">';
+
+
+    function create_innerHTML( str ) {
+        switch(str.data) {
+            // 기본도형
+            case "triangle":
+                div1.innerHTML = innerHTML_cv_x2;
+                div2.innerHTML = innerHTML_a_range;
+                div3.innerHTML = '<ol type="A"><li><button onclick="Triangle_Height();this.onclick=null;">정삼각형의 높이</button></li><p id="btn_01"></p><br><li><button onclick="Triangle_Area();this.onclick=null;">정삼각형의 넓이</button></li><p id="btn_02"></p></ol>';
+
+                cv_01 = document.getElementById("cv_left");
+                cv_02 = document.getElementById("cv_right");
+
+                a = document.getElementById("a_range").value;
+                break;
+            case "rectangle":
+                div1.innerHTML = innerHTML_cv_x2;
+                div2.innerHTML = innerHTML_a_range;
+                div3.innerHTML = '<ol type="A"><li><button onclick="Rectangle_Area();this.onclick=null;">정사각형의 넓이</button><p id="btn_01"></p></li></ol>';
+
+                cv_01 = document.getElementById("cv_left");
+                cv_02 = document.getElementById("cv_right");
+
+                a = document.getElementById("a_range").value;
+                break;
+            case "circle":
+                div1.innerHTML = innerHTML_cv_x2;
+                div2.innerHTML = innerHTML_r_range;
+                div3.innerHTML = '<ol type="A"><li><button onclick="Circle_Area();this.onclick=null;">원의 넓이</button><p id="btn_01"></p></li><br><li><button onclick="Circle_Circum();this.onclick=null;">원의 둘레</button><p id="btn_02"></p></li></ol>';
+
+                cv_01 = document.getElementById("cv_left");
+                cv_02 = document.getElementById("cv_right");
+
+                r = document.getElementById("r_range").value;
+                break;
+            case "cylinder":
+                div1.innerHTML = innerHTML_cv_x2;
+                div2.innerHTML = innerHTML_r_range + '<br>' + innerHTML_h_range;
+                div3.innerHTML = '<ol type="A"><li><button onclick="Cylinder_Area();this.onclick=null;">원기둥의 겉넓이</button><p id="btn_01"></p></li><br><li><button onclick="Cylinder_Volume();this.onclick=null;">원기둥의 부피</button><p id="btn_02"></p></li></ol>';
+
+                cv_01 = document.getElementById("cv_left");
+                cv_02 = document.getElementById("cv_right");
+
+                r = document.getElementById("r_range").value;
+                h = document.getElementById("h_range").value;
+                break;
+            case "circone":
+                div1.innerHTML = innerHTML_cv_x2;
+                div2.innerHTML = innerHTML_r_range + '<br>' + innerHTML_h_range;
+                div3.innerHTML = '<ol type="A"><li><button onclick="CirCone_Area();this.onclick=null;">원뿔의 겉넓이</button><p id="btn_01"></p></li><br><li><button onclick="CirCone_Volume();this.onclick=null;">원뿔의 부피</button><p id="btn_02"></p></li></ol>';
+
+                cv_01 = document.getElementById("cv_left");
+                cv_02 = document.getElementById("cv_right");
+
+                r = document.getElementById("r_range").value;
+                h = document.getElementById("h_range").value;
+                break;
+            case "sphere":
+                div1.innerHTML = innerHTML_cv_x2;
+                div2.innerHTML = innerHTML_r_range;
+                div3.innerHTML = '<ol type="A"><li><button onclick="Sphere_Area();this.onclick=null;">구의 겉넓이</button><p id="btn_01"></p></li><br><li><button onclick="Sphere_Volume();this.onclick=null;">구의 부피</button><p id="btn_02"></p></li></ol>';
+
+                cv_01 = document.getElementById("cv_left");
+                cv_02 = document.getElementById("cv_right");
+
+                r = document.getElementById("r_range").value;
+                break;
+            // 미분
+            case "dx_01":
+                div1.innerHTML = innerHTML_cv_x1;
+                div2.innerHTML = innerHTML_null;
+                div3.innerHTML = '<p>함수 <eq>y=f(x)</eq>에서 <eq>x</eq>의 값이 <eq>a</eq>에서 <eq>a+&#92;Delta x</eq>까지 변할 때의 평균변화율에서 <eq>&#92;Delta x&#92;rightarrow 0</eq> 일 때의<br><br>극한값 <eq>&#92;lim_{&#92;Delta x&#92;rightarrow 0}&#92;frac{&#92;Delta y}{&#92;Delta x}=&#92;lim_{&#92;Delta x&#92;rightarrow 0}&#92;frac{f(a+&#92;Delta x)-f(a)}{&#92;Delta x}</eq>를 <eq>y=f(x)</eq>의 <eq>x=a</eq>에서의<br><br>미분계수,  순간변화율,  접선의 기울기라 하고 <eq>f&#39;(a)</eq> 또는 <eq>&#92;frac{dy}{dx}&#92;mid _{x=a}</eq>등으로 나타낸다.</p>';
+                
+
+                cv_01 = document.getElementById("cv_center");
+                eqrm();
+                break;
+            case "dx_02":
+                div1.innerHTML = innerHTML_null;
+                div2.innerHTML = '<p>1. <eq>f(x)=c</eq> (<eq>c</eq>는 상수)이면, <eq>f&#39;(x)=0</eq><br><br><br>2. <eq>y=x^{n}</eq> (<eq>n</eq>은 실수)이면,  <eq>y&#39;= nx^{n-1}</eq><br><br><br>3. <eq>y=cf(x)</eq> (<eq>c</eq>는 상수)이면, <eq>y&#39;= cf&#39;(x)</eq><br><br><br>4. <eq>y=f(x)&#92;pm g(x)</eq>이면, <eq>y&#39;= f&#39;(x)&#92;pm g&#39;(x)</eq><br><br><br> 5. <eq>y=f(x)g(x)</eq>이면, <eq>y&#39;= f&#39;(x)g(x)+f(x)g&#39;(x)</eq><br><br><br>6. <eq>y = &#92;frac{f(x)}{g(x)} (g(x)&#92;neq 0)</eq> 이면, <eq>y&#39;=&#92;frac{f&#39;(x)g(x)-f(x)g&#39;(x)}{(g(x))^2}</eq></p>';
+
+                div3.innerHTML = innerHTML_null;
+                eqrm();
+                break;
+            case "dx_03":
+                div1.innerHTML = innerHTML_null;
+                div2.innerHTML = '<p>1. <eq>y = sinx</eq> 일때, <eq>y&#39; = cosx</eq><br><br><br>2. <eq>y = cosx</eq> 일때, <eq>y&#39; = -sinx</eq><br><br><br>3. <eq>y = tanx</eq> 일때, <eq>y&#39; = sec^{2}x</eq><br><br><br>4. <eq>y = cotx</eq> 일때, <eq>y&#39; = -csc^{2}x</eq><br><br><br>5. <eq>y = secx</eq> 일때, <eq>y&#39; = secxtanx</eq><br><br><br>6. <eq>y = cscx</eq> 일때, <eq>y&#39; = -cscxcotx</eq></font></p>';
+
+                div3.innerHTML = innerHTML_null;
+
+                eqrm();
+                break;
+            case "dx_04":
+                div1.innerHTML = innerHTML_null;
+                div2.innerHTML = '<p>1. <eq>y=a^{x}</eq> 일때, <eq>y&#39;=a^{x}lna</eq><br><br><br>2. <eq>y=e^{x}</eq> 일때, <eq>y&#39;=e^{x}</eq><br><br><br>3. <eq>y=log_{a}x</eq> 일때, <eq>y&#39;  =&#92;frac{1}{x}&#92;frac{1}{lna}</eq><br><br><br>4. <eq>y=lnx</eq> 일때, <eq>y&#39;=&#92;frac{1}{x}</eq></p>'
+
+                div3.innerHTML = innerHTML_null;
+
+                eqrm();
+                break;
+            // 적분
+            case "ix_01":
+                div1.innerHTML = innerHTML_cv_x1;
+
+                div2.innerHTML = innerHTML_null;
+                div3.innerHTML = '<p>함수 <eq>y=f(x)</eq>가 구간 <eq>[a,b]</eq>에서 연속이고 <eq>f(x)&#92;geq 0</eq> 이라고 하자.<br><br>이때, <eq>x=a, x=b, y=f(x), x</eq>축으로 둘러싸인 도형의 넓이 <eq>S</eq>를 구해보자.<br><br>구간 <eq>[a,b]</eq>를 <eq>n</eq>등분한 점을 각각 <eq>x_{0} ,x_{1}.....x_{n}(x_{0}=a,x_{n}=b)</eq>라 하자.<br><br><eq>S</eq>는 <eq>S=f(x_{1})&#92;Delta x+f(x_{2})&#92;Delta x+f(x_{3})&#92;Delta x+&#92;cdot &#92;cdot &#92;cdot +f(x_{n})&#92;Delta x =&#92;sum_{k=1}^{n}f(x_{k})</eq>  (<eq>&#92;Delta x=&#92;frac{b-a}{n}</eq>)로 나타낼 수 있다.<br><br>이때, 정적분을 다음과 같이 정의한다.<eq>&#92;lim_{n&#92;rightarrow &#92;infty}&#92;sum_{k=1}^{n}f(x_{k})&#92;Delta x=&#92;int_{a}^{b}f(x)dx</eq></p>';
+
+
+                cv_01 = document.getElementById("cv_center");
+                eqrm();
+                break;
+            case "ix_02":
+                div1.innerHTML = innerHTML_null;
+                div2.innerHTML = '<p>1. <eq>&#92;int kf(x)dx = k&#92;int f(x)dx</eq><br><br><br>2. <eq>&#92;int {f(x)&#92;pm g(x)}dx = &#92;int f(x)dx&#92;pm &#92;int g(x)dx</eq><br><br><br>3. <eq>&#92;int x^{n}dx=&#92;frac{1}{n+1}x^{n+1}+C</eq></p>'
+
+                div3.innerHTML = innerHTML_null;
+
+                eqrm();
+                break;
+            case "ix_03":
+                div1.innerHTML = innerHTML_null;
+                div2.innerHTML = '<p>1. <eq>&#92;int sinxdx=-cosx+C</eq><br><br><br>2. <eq>&#92;int cosxdx=sinx+C</eq><br><br><br>3. <eq>&#92;int tanxdx=-ln&#92;left | cosx &#92;right |+C</eq><br><br><br>4. <eq>&#92;int cotxdx=ln&#92;left | sinx &#92;right |+C</eq><br><br><br>5. <eq>&#92;int secxdx=ln&#92;left | secx+tanx &#92;right |+C</eq><br><br><br>6. <eq>&#92;int cscxdx=ln&#92;left | cscx-cotx &#92;right |+C</eq></p>'
+
+                div3.innerHTML = innerHTML_null;
+
+                eqrm();
+                break;
+            case "ix_04":
+                div1.innerHTML = innerHTML_null;
+                div2.innerHTML = '<p>1. <eq>&#92;int a^{x}dx=&#92;frac{a^{x}}{ln&#92;left | a &#92;right |}+C</eq><br><br><br>2. <eq>&#92;int e^{x}dx=e^{x}+C</eq><br><br><br>3. <eq>&#92;int lnxdx=xlnx-x+C</eq></p>'
+
+                div3.innerHTML = innerHTML_null;
+
+                eqrm();
+                break;
+            // ERROR
+            default:
+                alert("ERROR");
+                break;
+        }
+    }
+
+    function drawCanvas( str ) {
+        switch(str.data) {
+            // 기본도형
+            case "triangle":
+                drawImage(cv_01, "triangle.png");
+                drawTriangle(cv_02, a);   
+                break;
+            case "rectangle":
+                drawImage(cv_01, "rectangle.png");
+                drawRectangle(cv_02, a);
+                break;
+            case "circle":
+                drawImage(cv_01, "circle.png");
+                drawCircle(cv_02, r);
+                break;
+            case "cylinder":
+                drawImage(cv_01, "cylinder.png");
+                drawCylinder(cv_02, r, h);
+                break;
+            case "circone":
+                drawImage(cv_01, "circone.png");
+                drawCirCone(cv_02, r, h);
+                break;
+            case "sphere":
+                drawImage(cv_01, "sphere.png");
+                drawSphere(cv_02, r);
+                break;
+            // 미분
+            case "dx_01":
+                drawImage(cv_01, "differential.jpg");
+                break;
+            // 적분
+            case "ix_01":
+                drawImage(cv_01, "integral.png");
+                break;
+        }
+    }
+
+    function reDrawCanvas( str ) {
+        clearCanvas(cv_02);
+
+        switch(str.data) {
+            // 기본도형
+            case "triangle":
+                drawTriangle(cv_02, a);
+                break;
+            case "rectangle":
+                drawRectangle(cv_02, a);
+                break;
+            case "circle":
+                drawCircle(cv_02, r);
+                break;
+            case "cylinder":
+                drawCylinder(cv_02, r, h);
+                break;
+            case "circone":
+                drawCirCone(cv_02, r, h);
+                break;
+            case "sphere":
+                drawSphere(cv_02, r);
+                break;
+        }
+    }
+
+    function input_value( obj ) {
+        switch (obj.id) {
+            case "a_range" :
+               a = obj.value;
+               break;
+            case "h_range" :
+               h = obj.value;
+               break; 
+            case "r_range" :
+               r = obj.value;
+               break;
+        }
+
+        reDrawCanvas(menu);
+    }
+
+    function clearCanvas( cv ) {
+        var ctx = cv.getContext("2d");
+
+        ctx.clearRect(0, 0, cv.width, cv.height);
+    }
+
+    function drawImage( cv, src ) {
+        var ctx = cv.getContext("2d");
+        var img = new Image();
+        var cv_w_center = cv.width / 2;
+        var cv_h_center = cv.height / 2;
+        
+        img.src = src;
+        img.onload = function() {
+            ctx.drawImage(img, cv_w_center-(img.width/2), cv_h_center-(img.height/2), img.width, img.height );
+        }
+    }
+
+    function drawTriangle( cv, a ) {
+        var ctx = cv.getContext("2d");
+        var cv_w_center = cv.width / 2;
+        var cv_h_center = cv.height / 2;
+
+        ctx.beginPath();
+        ctx.lineWidth = 5;
+
+        ctx.moveTo(cv_w_center,       cv_h_center+Math.sqrt(3)*(a/4));
+        ctx.lineTo(cv_w_center+(a/2), cv_h_center+Math.sqrt(3)*(a/4));
+        ctx.lineTo(cv_w_center,       cv_h_center-Math.sqrt(3)*(a/4));
+        ctx.lineTo(cv_w_center-(a/2), cv_h_center+Math.sqrt(3)*(a/4));
+        ctx.lineTo(cv_w_center,       cv_h_center+Math.sqrt(3)*(a/4));
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.font = "32px Arial";
+        ctx.fillStyle = "red"
+
+        ctx.fillText("a", cv_w_center, cv_h_center+Math.sqrt(3)*(a/4)+32);
+        ctx.stroke();
+        ctx.closePath();
+    }
+
+    function drawRectangle( cv, x ) {
+        var ctx = cv.getContext("2d");
+        var cv_w_center = cv.width / 2;
+        var cv_h_center = cv.height / 2;
+
+        ctx.lineWidth = 5;
+
+        ctx.strokeRect(cv_w_center-(a/2), cv_h_center-(a/2), a, a);
+
+        ctx.beginPath();
+        ctx.font = "32px Arial";
+        ctx.fillStyle = "red"
+
+        ctx.fillText("a", cv_w_center, cv_h_center+(a/2)+32);
+        ctx.stroke();
+        ctx.closePath();
+    }
+
+    function drawCircle( cv, r ) {
+        var ctx = cv.getContext("2d");
+        var cv_w_center = cv.width / 2;
+        var cv_h_center = cv.height / 2;
+
+        ctx.beginPath();
+        ctx.lineWidth = 5;
+
+        ctx.arc(cv_w_center,cv_h_center,r,0, 2*Math.PI, true);
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.font = "32px Arial";
+        ctx.fillStyle = "red"
+
+        ctx.moveTo(cv_w_center+(r/1), cv_h_center);
+        ctx.lineTo(cv_w_center, cv_h_center);
+        ctx.fillText("r", cv_w_center+(r/2), cv_h_center);
+        ctx.stroke();
+        ctx.closePath();
+    }
+
+    function drawCylinder( cv, r, h ) {
+        var ctx = cv.getContext("2d");
+        var cv_w_center = cv.width / 2;
+        var cv_h_center = cv.height / 2;
+        var rad0        = 0 * Math.PI;
+        var rad360      = 2 * Math.PI;
+
+        ctx.beginPath();
+        ctx.lineWidth = 5;
+
+        for (var i = rad0; i < rad360; i += 0.001 ) {
+            xPos = cv_w_center         + Math.cos(i) * r;
+            yPos = cv_h_center - (h/2) + Math.sin(i) * Math.sin(3) * r;
+
+            if (i == 0) {
+                ctx.moveTo(xPos, yPos);
+            }
+            else {
+                ctx.lineTo(xPos, yPos);
+            }
+        }
+
+        for (var i = rad0; i < rad360; i += 0.001 ) {
+            xPos = cv_w_center         + Math.cos(i) * r;
+            yPos = cv_h_center + (h/2) + Math.sin(i) * Math.sin(3) * r;
+
+            if (i == 0) {
+                ctx.moveTo(xPos, yPos);
+            }
+            else {
+                ctx.lineTo(xPos, yPos);
+            }
+        }
+
+        ctx.moveTo(cv_w_center-(r/1), cv_h_center-(h/2));
+        ctx.lineTo(cv_w_center-(r/1), cv_h_center+(h/2));
+        ctx.moveTo(cv_w_center+(r/1), cv_h_center-(h/2));
+        ctx.lineTo(cv_w_center+(r/1), cv_h_center+(h/2));
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.font = "32px Arial";
+        ctx.fillStyle = "red"
+
+        ctx.moveTo(cv_w_center,       cv_h_center-(h/2));
+        ctx.lineTo(cv_w_center,       cv_h_center+(h/2));
+        ctx.lineTo(cv_w_center+(r/1), cv_h_center+(h/2));
+        ctx.fillText("h", cv_w_center, cv_h_center);
+        ctx.fillText("r", cv_w_center+(r/2), cv_h_center+(h/2));
+        ctx.stroke();
+        ctx.closePath();
+    }
+
+    function drawCirCone( cv, r, h ) {
+        var ctx = cv.getContext("2d");
+        var cv_w_center = cv.width / 2;
+        var cv_h_center = cv.height / 2; 
+        var rad0        = 0 * Math.PI;
+        var rad360      = 2 * Math.PI;
+
+        ctx.beginPath();
+        ctx.lineWidth = 5;
+        
+        for (var i = rad0; i < rad360; i += 0.01 ) {
+            xPos = cv_w_center         + Math.cos(i) * r;
+            yPos = cv_h_center + (h/2) + Math.sin(i) * Math.sin(3) * r;
+
+            if (i == 0) {
+                ctx.moveTo(xPos, yPos);
+            }
+            else {
+                ctx.lineTo(xPos, yPos);
+            }
+        }
+
+        ctx.moveTo(cv_w_center-(Math.cos(3)*r), cv_h_center-Math.cos(3)*h/2-Math.sin(3)*Math.sin(3)*r);
+        ctx.lineTo(cv_w_center,                 cv_h_center+Math.cos(3)*(h/2));
+        ctx.lineTo(cv_w_center+(Math.cos(3)*r), cv_h_center-Math.cos(3)*h/2-Math.sin(3)*Math.sin(3)*r);
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.font = "32px Arial";
+        ctx.fillStyle = "red"
+
+        ctx.moveTo(cv_w_center,       cv_h_center-(h/2));
+        ctx.lineTo(cv_w_center,       cv_h_center+(h/2));
+        ctx.lineTo(cv_w_center+(r/1), cv_h_center+(h/2));
+        ctx.fillText("h", cv_w_center, cv_h_center);
+        ctx.fillText("r", cv_w_center+(r/2), cv_h_center+(h/2));
+        ctx.stroke();
+        ctx.closePath(); 
+    }
+
+    function drawSphere( cv, r ) {
+        var ctx = cv.getContext("2d");
+        var cv_w_center = cv.width / 2;
+        var cv_h_center = cv.height / 2;
+
+        ctx.beginPath();
+        ctx.lineWidth = 5;
+
+        ctx.arc(cv_w_center,cv_h_center,r,0, 2*Math.PI, true);
+
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        
+        for (var i = 0 * Math.PI; i < 2 * Math.PI; i += 0.01 ) {
+            xPos = cv_w_center - (r/3 * Math.sin(i)) * Math.sin(0 * Math.PI) + (r * Math.cos(i)) * Math.cos(0 * Math.PI);
+            yPos = cv_h_center - r/2 + (r/2)+ (r * Math.cos(i)) * Math.sin(0 * Math.PI) + (r/3 * Math.sin(i)) * Math.cos(0 * Math.PI);
+
+            if (i == 0) {
+                ctx.moveTo(xPos, yPos);
+            }
+            else {
+                ctx.lineTo(xPos, yPos);
+            }
+        }
+
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.font = "32px Arial";
+        ctx.fillStyle = "red"
+
+        ctx.moveTo(cv_w_center+(r/1), cv_h_center);
+        ctx.lineTo(cv_w_center, cv_h_center);
+        ctx.fillText("r", cv_w_center+(r/2), cv_h_center);
+        ctx.stroke();
+        ctx.closePath(); 
+    }
+
+    function Triangle_Height() {
+        var ans = document.getElementById("btn_01")
+        ans.innerHTML += "▷정삼각형의 높이는&nbsp" + "<img src=01.png width=30 height=35>" + "&nbsp입니다." 
+    }
+
+    function Triangle_Area() {
+        var ans = document.getElementById("btn_02")
+        ans.innerHTML += "▷정삼각형의 넓이는&nbsp" + "<img src=02.png width=35 height=35>" + "&nbsp입니다." 
+    }
+
+    function Rectangle_Area() {
+        var ans = document.getElementById("btn_01")
+        ans.innerHTML += "▷정사각형의 넓이는&nbsp" + "<img src=03.png width=25 height=25>" + "&nbsp입니다." 
+    }
+
+    function Circle_Area() {
+        var ans = document.getElementById("btn_01")
+        ans.innerHTML += "▷원의 넓이는&nbsp" + "<img src=04.png width=30 height=20>" + "&nbsp입니다." 
+    }
+
+    function Circle_Circum() {
+        var ans = document.getElementById("btn_02")
+        ans.innerHTML += "▷원의 둘레는&nbsp" + "<img src=05.png width=30 height=17>" + "&nbsp입니다."
+    }
+
+    function Cylinder_Area() {
+        var ans = document.getElementById("btn_01")
+        ans.innerHTML += "▷원기둥의 겉넓이는&nbsp" + "<img src=06.png width=95 height=20>" + "&nbsp입니다." 
+    }
+
+    function Cylinder_Volume() {
+        var ans = document.getElementById("btn_02")
+        ans.innerHTML += "▷원기둥의 부피는&nbsp" + "<img src=07.png width=45 height=20>" + "&nbsp입니다." 
+    }
+
+    function CirCone_Area() {
+        var ans = document.getElementById("btn_01")
+        ans.innerHTML += "▷원뿔의 겉넓이는&nbsp" + "<img src=08.png width=150 height=22>" + "&nbsp입니다." 
+    }
+
+    function CirCone_Volume() {
+        var ans = document.getElementById("btn_02")
+        ans.innerHTML += "▷원뿔의 부피는&nbsp" + "<img src=09.png width=45 height=35>" + "&nbsp입니다." 
+    }
+
+    function Sphere_Area() {
+        var ans = document.getElementById("btn_01")
+        ans.innerHTML += "▷구의 겉넓이는&nbsp" + "<img src=10.png width=35 height=20>" + "&nbsp입니다."
+    }
+
+    function Sphere_Volume() {
+        var ans = document.getElementById("btn_02")
+        ans.innerHTML += "▷구의 부피는&nbsp" + "<img src=11.png width=35 height=35>" + "&nbsp입니다." 
+    }
+
+    function eqrm() { 
+        var codecogs="http://latex.codecogs.com/png.latex?\\dpi{150}\\bg_white ";
+
+        function toImg( texEq ) {
+            return '<img class="eq" src="'+codecogs+texEq+'"/>';
+        }
+
+        var eqs  = window.document.getElementsByTagName("eq");
+        var eqqs = window.document.getElementsByTagName("eqq");
+
+        for (var i = 0; i < eqs.length;  i++) {
+            eqs[i].innerHTML  = toImg("\\inline "+eqs[i].innerHTML.trim());
+        }
+        for (var i = 0; i < eqqs.length; i++) {
+            eqqs[i].innerHTML = toImg(eqqs[i].innerHTML.trim());
+        }
+    }
+
+</script>
+
+</html>
+
+
+
+
+

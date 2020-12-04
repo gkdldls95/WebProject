@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+	<title>menu</title>
+</head>
+
+<style>
+	body    { background-color: black; color: white; font-family: "함초롬돋음"; }
+	li      { font-size: 12pt; }
+	summary { font-size: 20pt; }
+</style>
+
+<body>
+	<!--기본도형-->
+	<details>
+	<summary>기본도형</summary>
+	<ul>
+	<li><a href=javascript:void(0); onclick="sendToMain('triangle')";>정삼각형</a></li>
+	<li><a href=javascript:void(0); onclick="sendToMain('rectangle')";>정사각형</a></li>
+	<li><a href=javascript:void(0); onclick="sendToMain('circle')";>원</a></li>
+    <li><a href=javascript:void(0); onclick="sendToMain('cylinder')";>원기둥</a></li>
+    <li><a href=javascript:void(0); onclick="sendToMain('circone')";>원뿔</a></li>
+    <li><a href=javascript:void(0); onclick="sendToMain('sphere')";>구</a></li>
+	</ul>
+	</details>
+
+	<!--미분-->
+	<details>
+	<summary>미분</summary>
+	<ul>
+    <li><a href=javascript:void(0); onclick="sendToMain('dx_01')";>미분계수(순간변화율)의 정의</a></li>
+    <li><a href=javascript:void(0); onclick="sendToMain('dx_02')";>미분법의 기본공식</a></li>
+    <li><a href=javascript:void(0); onclick="sendToMain('dx_03')";>삼각함수의 미분공식</a></li>
+    <li><a href=javascript:void(0); onclick="sendToMain('dx_04')";>지수 로그함수의 미분공식</a></li>
+	</ul>
+	</details>
+
+	<!--적분-->
+	<details>
+	<summary>적분</summary>
+	<ul>
+	<li><a href=javascript:void(0); onclick="sendToMain('ix_01')";>정적분의 정의</a></li>
+    <li><a href=javascript:void(0); onclick="sendToMain('ix_02')";>부정적분의 성질 및 기본공식</a></li>
+    <li><a href=javascript:void(0); onclick="sendToMain('ix_03')";>삼각함수의 부정적분공식</a></li>
+    <li><a href=javascript:void(0); onclick="sendToMain('ix_04')";>지수 로그함수의 부정적분공식</a></li>
+    </ul>
+	</details>
+
+	<marquee  loop="10" width="1000" height="50" direction="up" behavior="alternate"><font>^^^원하는 공식을 확인 하세요.^^^<font></marquee>
+
+<script>
+	window.onload = function() {
+		console.log("-- menu.onload --");
+	}
+	function sendToMain( str ) {
+		console.log( "[SEND] to Parent : " , str );
+		window.parent.postMessage( str , '*');
+	}
+</script>
+
+</html>
